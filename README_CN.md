@@ -90,6 +90,7 @@ README 版本: \[[English](README.md) | [简体中文](README_CN.md)\]
 | JaveleyQAQ | 50.00 元 |
 | Kite | 20.00 元 |
 | ArG3 | 66.00 元 |
+| 祝祝 | 288.00 元 |
 
 ## 最后
 

@@ -90,6 +90,7 @@ We appreciate everyone's support for the project. The following list is sorted b
 | JaveleyQAQ | 50.00 CNY |
 | Kite | 20.00 CNY |
 | ArG3 | 66.00 CNY |
+| 祝祝 | 288.00 CNY |
 
 ## Support the Project
 

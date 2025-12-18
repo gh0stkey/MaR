@@ -91,6 +91,10 @@ We appreciate everyone's support for the project. The following list is sorted b
 | Kite | 20.00 CNY |
 | ArG3 | 66.00 CNY |
 | 祝祝 | 288.00 CNY |
+| 洺熙 | 88.88 CNY |
+| 秋之 | 99.00 CNY |
+| Redbag | 66.00 CNY |
+| 毁三观大人 | 200.00 CNY |
 
 ## Support the Project
 

@@ -36,10 +36,10 @@ public class ContextMenuHandler implements ContextMenuItemsProvider {
 
         if (messageEditor.isPresent()) {
             MessageEditorHttpRequestResponse editor = messageEditor.get();
-            
+
             if (editor.selectionOffsets().isPresent()) {
                 SelectionContext context = getSelectedTextAndContext(editor);
-                
+
                 if (context != null && !context.selectedText.isEmpty()) {
                     JMenuItem createRuleItem = new JMenuItem("Create MaR Rule");
                     createRuleItem.addActionListener(e -> showCreateRuleDialog(context));
@@ -56,7 +56,7 @@ public class ContextMenuHandler implements ContextMenuItemsProvider {
             if (editor.selectionOffsets().isEmpty()) {
                 return null;
             }
-            
+
             var offsets = editor.selectionOffsets().get();
             int start = offsets.startIndexInclusive();
             int end = offsets.endIndexExclusive();
@@ -88,18 +88,19 @@ public class ContextMenuHandler implements ContextMenuItemsProvider {
         SwingUtilities.invokeLater(() -> {
             try {
                 Display ruleDisplay = new Display();
-                
+
                 String defaultScope = context.isRequest ? "request" : "response";
                 ruleDisplay.conditionScopeComboBox.setSelectedItem(defaultScope);
                 ruleDisplay.matchReplaceScopeComboBox.setSelectedItem(defaultScope);
 
                 ruleDisplay.conditionTextField.setText(context.selectedText);
                 ruleDisplay.matchTextField.setText(context.selectedText);
-                
+
                 String[] groups = Config.globalRules.keySet().toArray(new String[0]);
                 JComboBox<String> groupComboBox = new JComboBox<>(groups);
-                
+
                 JPanel panel = new JPanel(new BorderLayout(5, 5));
+                panel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
                 JPanel groupPanel = new JPanel(new GridBagLayout());
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(5, 5, 0, 5);
@@ -113,12 +114,12 @@ public class ContextMenuHandler implements ContextMenuItemsProvider {
                 groupPanel.add(groupComboBox, gbc);
                 panel.add(groupPanel, BorderLayout.NORTH);
                 panel.add(ruleDisplay, BorderLayout.CENTER);
-                
+
                 // 创建非模态对话框
                 JDialog dialog = new JDialog((Frame) null, "MaR - New Rule", false);
                 dialog.setLayout(new BorderLayout());
                 dialog.add(panel, BorderLayout.CENTER);
-                
+
                 // 创建按钮面板
                 JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                 JButton okButton = new JButton("OK");
@@ -126,34 +127,37 @@ public class ContextMenuHandler implements ContextMenuItemsProvider {
                 buttonPanel.add(okButton);
                 buttonPanel.add(cancelButton);
                 dialog.add(buttonPanel, BorderLayout.SOUTH);
-                
+
                 // 设置按钮事件
                 okButton.addActionListener(e -> {
                     String selectedGroup = (String) groupComboBox.getSelectedItem();
                     saveRule(ruleDisplay, selectedGroup);
                     dialog.dispose();
                 });
-                
+
                 cancelButton.addActionListener(e -> dialog.dispose());
-                
-                // 设置窗口属性：固定大小、置顶、不可调整大小
-                dialog.setSize(400, 400);
-                dialog.setResizable(false);
+
+                // 设置窗口属性：自动适应内容大小、置顶
+                dialog.pack();
+                Dimension preferredSize = dialog.getPreferredSize();
+                dialog.setMinimumSize(new Dimension(preferredSize.width + 50, preferredSize.height + 50));
+                dialog.setSize(dialog.getMinimumSize());
                 dialog.setAlwaysOnTop(true);
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
+                dialog.setResizable(false);
             } catch (Exception e) {
                 api.logging().logToError("Failed to create rule dialog: " + e.getMessage());
             }
         });
     }
-    
+
     private void saveRule(Display ruleDisplay, String ruleGroup) {
         try {
             Vector<Object> ruleData = Rule.createRuleDataFromDisplay(ruleDisplay);
 
             ruleProcessor.addRule(ruleData, ruleGroup);
-            
+
             // 刷新Rules界面
             configLoader.reloadRules();
         } catch (Exception e) {

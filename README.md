@@ -8,7 +8,7 @@ README Version: \[[English](README.md) | [简体中文](README_CN.md)\]
 
 ## Project Introduction
 
-**MaR** (Matcher and Replacer) is an auxiliary project in the field of cybersecurity (vulnerability research), primarily used for precise matching and intelligent replacement of HTTP protocol packets. It can automatically modify HTTP request or response content based on user-defined rules when specific conditions are met, helping security researchers achieve automated data tampering during penetration testing.
+**MaR** (Matcher and Replacement) is an auxiliary project in the field of cybersecurity (vulnerability research), primarily used for precise matching and intelligent replacement of HTTP protocol packets. It can automatically modify HTTP request or response content based on user-defined rules when specific conditions are met, helping security researchers achieve automated data tampering during penetration testing.
 
 The design concept of **MaR** originates from BurpSuite's native Match and Replace functionality, but provides more flexible and powerful rule configuration capabilities, supporting conditional matching, regular expressions, multiple scopes, and other advanced features.
 

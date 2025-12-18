@@ -1,0 +1,65 @@
+rules:
+  - group: Add Header
+    rule:
+      - name: X-Forwarded-For
+        loaded: false
+        c_scope: request header
+        relationship: Matches
+        condition: Host
+        c_regex: false
+        m_scope: request header
+        match: 'Host: (.*?)\r\n'
+        replace: 'Host: $1\r\nX-Forwarded-For: 127.0.0.1\r\n'
+        m_regex: true
+      - name: X-Real-IP
+        loaded: false
+        c_scope: request header
+        relationship: Matches
+        condition: Host
+        c_regex: false
+        m_scope: request header
+        match: 'Host: (.*?)\r\n'
+        replace: 'Host: $1\r\nX-Real-IP: 127.0.0.1\r\n'
+        m_regex: true
+      - name: X-Remote-IP
+        loaded: false
+        c_scope: request header
+        relationship: Matches
+        condition: Host
+        c_regex: false
+        m_scope: request header
+        match: 'Host: (.*?)\r\n'
+        replace: 'Host: $1\r\nX-Remote-IP: 127.0.0.1\r\n'
+        m_regex: true
+      - name: X-True-Client-IP
+        loaded: false
+        c_scope: request header
+        relationship: Matches
+        condition: Host
+        c_regex: false
+        m_scope: request header
+        match: 'Host: (.*?)\r\n'
+        replace: 'Host: $1\r\nX-True-Client-IP: 127.0.0.1\r\n'
+        m_regex: true
+  - group: Change Response
+    rule:
+      - name: Change Status
+        loaded: true
+        c_scope: response status
+        relationship: Matches
+        condition: '401'
+        c_regex: false
+        m_scope: response status
+        match: '401'
+        replace: '200'
+        m_regex: false
+      - name: Change Body
+        loaded: false
+        c_scope: response body
+        relationship: Matches
+        condition: :false,
+        c_regex: false
+        m_scope: response body
+        match: :false,
+        replace: :true,
+        m_regex: false

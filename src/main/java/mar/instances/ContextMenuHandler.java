@@ -154,7 +154,7 @@ public class ContextMenuHandler implements ContextMenuItemsProvider {
 
     private void saveRule(Display ruleDisplay, String ruleGroup) {
         try {
-            Vector<Object> ruleData = Rule.createRuleDataFromDisplay(ruleDisplay);
+            Vector<Object> ruleData = Rule.createRuleDataFromDisplay(ruleDisplay, true);
 
             ruleProcessor.addRule(ruleData, ruleGroup);
 

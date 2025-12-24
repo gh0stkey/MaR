@@ -289,9 +289,9 @@ public class Rule extends JPanel {
     /**
      * 从Display对象创建规则数据Vector
      */
-    public static Vector<Object> createRuleDataFromDisplay(Display ruleDisplay) {
+    public static Vector<Object> createRuleDataFromDisplay(Display ruleDisplay, boolean isEnabled) {
         Vector<Object> ruleData = new Vector<>();
-        ruleData.add(false);
+        ruleData.add(isEnabled);
         ruleData.add(ruleDisplay.ruleNameTextField.getText());
         ruleData.add(ruleDisplay.conditionScopeComboBox.getSelectedItem().toString());
         ruleData.add(ruleDisplay.relationshipComboBox.getSelectedItem().toString());
@@ -339,7 +339,7 @@ public class Rule extends JPanel {
         ruleDisplay.ruleNameTextField.setText(String.format("Copy of %s", ruleDisplay.ruleNameTextField.getText()));
 
         if (showRuleDialog(ruleDisplay, "Copy Rule")) {
-            Vector<Object> ruleData = createRuleDataFromDisplay(ruleDisplay);
+            Vector<Object> ruleData = createRuleDataFromDisplay(ruleDisplay, false);
             DefaultTableModel model = (DefaultTableModel) ruleTable.getModel();
             model.insertRow(model.getRowCount(), ruleData);
             ruleProcessor.addRule(ruleData, getCurrentTabTitle());
@@ -354,7 +354,7 @@ public class Rule extends JPanel {
         Display ruleDisplay = new Display();
 
         if (showRuleDialog(ruleDisplay, "Add Rule")) {
-            Vector<Object> ruleData = createRuleDataFromDisplay(ruleDisplay);
+            Vector<Object> ruleData = createRuleDataFromDisplay(ruleDisplay, false);
             DefaultTableModel model = (DefaultTableModel) ruleTable.getModel();
             model.insertRow(model.getRowCount(), ruleData);
             ruleProcessor.addRule(ruleData, getCurrentTabTitle());
@@ -380,7 +380,7 @@ public class Rule extends JPanel {
             int modelIndex = ruleTable.convertRowIndexToModel(selectedRow);
 
             // 更新表格数据
-            Vector<Object> ruleData = createRuleDataFromDisplay(ruleDisplay);
+            Vector<Object> ruleData = createRuleDataFromDisplay(ruleDisplay, false);
             for (int i = 1; i < ruleData.size(); i++) {
                 model.setValueAt(ruleData.get(i), modelIndex, i);
             }

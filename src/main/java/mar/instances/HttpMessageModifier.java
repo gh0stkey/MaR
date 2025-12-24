@@ -53,7 +53,7 @@ public class HttpMessageModifier {
                 Pattern pattern = Pattern.compile(condition);
                 conditionFound = pattern.matcher(target).find();
             } catch (PatternSyntaxException e) {
-                api.logging().logToError("正则表达式语法错误: " + e.getMessage());
+                api.logging().logToError("PatternSyntaxException: " + e.getMessage());
                 return false;
             }
         } else {
@@ -105,7 +105,7 @@ public class HttpMessageModifier {
                             matcher.appendReplacement(result, processedReplace);
                         } catch (IndexOutOfBoundsException e) {
                             // 处理替换字符串中的组引用无效的情况
-                            api.logging().logToError("替换内容中的组引用无效: " + e.getMessage());
+                            api.logging().logToError("IndexOutOfBoundsException: " + e.getMessage());
                             return content;
                         }
                     }
@@ -113,7 +113,7 @@ public class HttpMessageModifier {
 
                     return result.toString().getBytes(StandardCharsets.ISO_8859_1);
                 } catch (PatternSyntaxException e) {
-                    api.logging().logToError("替换时正则表达式语法错误: " + e.getMessage());
+                    api.logging().logToError("PatternSyntaxException: " + e.getMessage());
                     return content;
                 }
             } else {
@@ -151,7 +151,7 @@ public class HttpMessageModifier {
                 return result.toByteArray();
             }
         } catch (Exception e) {
-            api.logging().logToError("替换内容时发生错误: " + e.getMessage());
+            api.logging().logToError("matchAndReplaceBytes: " + e.getMessage());
             return content;
         }
     }
@@ -232,7 +232,7 @@ public class HttpMessageModifier {
                 try {
                     yield response.withStatusCode(Short.parseShort(modifiedCode));
                 } catch (NumberFormatException e) {
-                    api.logging().logToError("状态码格式错误: " + modifiedCode);
+                    api.logging().logToError("NumberFormatException: " + modifiedCode);
                     yield response;
                 }
             }

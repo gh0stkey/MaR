@@ -74,12 +74,12 @@ public class OriginalReponseEditor implements HttpResponseEditorProvider {
                     boolean shouldSkip = httpUtils.verifyHttpRequestResponse(requestResponse.request(), toolType);
 
                     if (!shouldSkip) {
-                        String requestKey = CachePool.generateResponseKey(response);
-                        this.originalResponse = CachePool.getModifiedResponse(requestKey);
+                        String responseKey = CachePool.generateResponseKey(response);
+                        this.originalResponse = CachePool.getModifiedResponse(responseKey);
                         return this.originalResponse != null;
                     }
                 } catch (Exception e) {
-                    api.logging().logToError("RequestEditor error: " + e.getMessage());
+                    api.logging().logToError("ResponseEditor error: " + e.getMessage());
                 }
             }
             return false;
@@ -87,7 +87,7 @@ public class OriginalReponseEditor implements HttpResponseEditorProvider {
 
         @Override
         public String caption() {
-            return "Original Request";
+            return "Original Response";
         }
 
         @Override

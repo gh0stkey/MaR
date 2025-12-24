@@ -7,10 +7,12 @@ import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import mar.Config;
+import mar.cache.CachePool;
 import mar.utils.ConfigLoader;
 import mar.utils.HttpUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,6 +89,11 @@ public class HttpMessageActiveHandler implements HttpHandler {
                 }
             }
 
+            if (!Arrays.equals(request.toByteArray().getBytes(), httpRequestToBeSent.toByteArray().getBytes())) {
+                String requestKey = CachePool.generateRequestKey(httpRequestToBeSent);
+                CachePool.cacheModifiedRequest(requestKey, request);
+            }
+
             // 设置ThreadLocal变量
             responseRules.set(rules);
             responseModifications.set(modifications);
@@ -129,6 +136,11 @@ public class HttpMessageActiveHandler implements HttpHandler {
                         response = modifier.modifyResponse(response, rule.m_scope,
                                 rule.match, rule.replace, rule.m_regex);
                     }
+                }
+
+                if (!Arrays.equals(response.toByteArray().getBytes(), httpResponseReceived.toByteArray().getBytes())) {
+                    String responseKey = CachePool.generateResponseKey(response);
+                    CachePool.cacheOriginalResponse(responseKey, httpResponseReceived);
                 }
             }
 

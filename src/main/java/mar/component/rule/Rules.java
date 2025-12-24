@@ -54,7 +54,7 @@ public class Rules extends JTabbedPane {
         this.ruleGroupNameTextField = new JTextField();
 
         initComponents();
-        
+
         // 注册规则刷新回调
         configLoader.setOnReloadRules(this::reloadRuleGroup);
     }

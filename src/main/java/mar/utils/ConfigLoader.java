@@ -222,11 +222,11 @@ public class ConfigLoader {
             return new LinkedHashMap<>(); // 读取失败时也返回空的Map
         }
     }
-    
+
     public void setOnReloadRules(Runnable callback) {
         this.onReloadRules = callback;
     }
-    
+
     public void reloadRules() {
         if (onReloadRules != null) {
             onReloadRules.run();

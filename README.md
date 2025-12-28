@@ -97,6 +97,7 @@ We appreciate everyone's support for the project. The following list is sorted b
 | 毁三观大人 | 200.00 CNY |
 | 朽木 | 200.00 CNY |
 | wxmmmlmmm | 99.99 CNY |
+| Shu2e | 50.00 CNY |
 
 ## Support the Project
 

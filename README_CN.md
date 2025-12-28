@@ -97,6 +97,7 @@ README 版本: \[[English](README.md) | [简体中文](README_CN.md)\]
 | 毁三观大人 | 200.00 元 |
 | 朽木 | 200.00 元 |
 | wxmmmlmmm | 99.99 元 |
+| Shu2e | 50.00 元 |
 
 ## 最后
 

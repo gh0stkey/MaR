@@ -23,13 +23,15 @@ public class Rule extends JPanel {
     private final ConfigLoader configLoader;
     private final RuleProcessor ruleProcessor;
     private final JTabbedPane tabbedPane;
+    private final Tester tester;
     private JCheckBox headerCheckBox;
 
-    public Rule(MontoyaApi api, ConfigLoader configLoader, Object[][] data, JTabbedPane tabbedPane) {
+    public Rule(MontoyaApi api, ConfigLoader configLoader, Object[][] data, JTabbedPane tabbedPane, Tester tester) {
         this.api = api;
         this.configLoader = configLoader;
         this.ruleProcessor = new RuleProcessor(api, configLoader);
         this.tabbedPane = tabbedPane;
+        this.tester = tester;
 
         initComponents(data);
     }
@@ -85,6 +87,13 @@ public class Rule extends JPanel {
                 // 更新表头复选框状态并强制重新渲染
                 updateHeaderCheckBoxState(model);
                 ruleTable.getTableHeader().repaint();
+            }
+        });
+
+        // 添加表格选择监听器，当选中规则时更新Tester
+        ruleTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && ruleTable.getSelectedRow() >= 0) {
+                tester.setSelectedRuleFromTable(ruleTable);
             }
         });
 

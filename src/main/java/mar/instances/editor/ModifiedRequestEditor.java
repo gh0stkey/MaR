@@ -78,8 +78,7 @@ public class ModifiedRequestEditor implements HttpRequestEditorProvider {
                         this.modifiedRequest = CachePool.getModifiedRequest(requestKey);
                         return this.modifiedRequest != null;
                     }
-                } catch (Exception e) {
-                    api.logging().logToError("RequestEditor error: " + e.getMessage());
+                } catch (Exception ignored) {
                 }
             }
             return false;

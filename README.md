@@ -98,6 +98,7 @@ We appreciate everyone's support for the project. The following list is sorted b
 | 朽木 | 200.00 CNY |
 | wxmmmlmmm | 99.99 CNY |
 | Shu2e | 50.00 CNY |
+| NOP Team | 88.00 CNY |
 
 ## Support the Project
 

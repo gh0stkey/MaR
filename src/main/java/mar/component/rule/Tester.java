@@ -16,7 +16,10 @@ import mar.instances.HttpMessageModifier;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -30,39 +33,39 @@ public class Tester extends JPanel {
     private static final String RESPONSE_CARD = "RESPONSE";
     private static final String RAW_CARD = "RAW";
 
-    private enum EditorMode { REQUEST, RESPONSE, RAW }
+    private enum EditorMode {REQUEST, RESPONSE, RAW}
 
-    private static final String DEFAULT_REQUEST = 
+    private static final String DEFAULT_REQUEST =
             "POST /update HTTP/2\r\n" +
-            "Host: example.com\r\n" +
-            "Cookie: example=123; test=456\r\n" +
-            "Accept-Language: zh-CN,zh;q=0.9\r\n" +
-            "User-Agent: Mozilla/5.0\r\n" +
-            "Accept: text/html\r\n" +
-            "Accept-Encoding: gzip, deflate, br\r\n" +
-            "Content-Type: application/json\r\n" +
-            "Content-Length: 49\r\n" +
-            "Connection: keep-alive\r\n" +
-            "\r\n" +
-            "{\r\n" +
-            "  \"key1\": \"value1\",\r\n" +
-            "  \"key2\": \"value2\"\r\n" +
-            "}";
+                    "Host: example.com\r\n" +
+                    "Cookie: example=123; test=456\r\n" +
+                    "Accept-Language: zh-CN,zh;q=0.9\r\n" +
+                    "User-Agent: Mozilla/5.0\r\n" +
+                    "Accept: text/html\r\n" +
+                    "Accept-Encoding: gzip, deflate, br\r\n" +
+                    "Content-Type: application/json\r\n" +
+                    "Content-Length: 49\r\n" +
+                    "Connection: keep-alive\r\n" +
+                    "\r\n" +
+                    "{\r\n" +
+                    "  \"key1\": \"value1\",\r\n" +
+                    "  \"key2\": \"value2\"\r\n" +
+                    "}";
 
-    private static final String DEFAULT_RESPONSE = 
+    private static final String DEFAULT_RESPONSE =
             "HTTP/2 200 OK\r\n" +
-            "Content-Type: text/html; charset=UTF-8\r\n" +
-            "Server: server\r\n" +
-            "Content-Length: 95\r\n" +
-            "\r\n" +
-            "<!DOCTYPE html>\r\n" +
-            "<html>\r\n" +
-            "  <head>\r\n" +
-            "    <title>Example</title>\r\n" +
-            "  </head>\r\n" +
-            "  <body>\r\n" +
-            "  </body>\r\n" +
-            "</html>";
+                    "Content-Type: text/html; charset=UTF-8\r\n" +
+                    "Server: server\r\n" +
+                    "Content-Length: 95\r\n" +
+                    "\r\n" +
+                    "<!DOCTYPE html>\r\n" +
+                    "<html>\r\n" +
+                    "  <head>\r\n" +
+                    "    <title>Example</title>\r\n" +
+                    "  </head>\r\n" +
+                    "  <body>\r\n" +
+                    "  </body>\r\n" +
+                    "</html>";
 
     private final MontoyaApi api;
     private final HttpMessageModifier modifier;
@@ -119,17 +122,17 @@ public class Tester extends JPanel {
         this.diffTextPane = new JTextPane();
         this.diffTextPane.setEditable(false);
         this.diffTextPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        
+
         // 初始化样式
         StyledDocument doc = diffTextPane.getStyledDocument();
         deletedStyle = doc.addStyle("deleted", null);
         StyleConstants.setForeground(deletedStyle, new Color(220, 50, 47));  // 红色
         StyleConstants.setBackground(deletedStyle, new Color(255, 238, 238));
-        
+
         addedStyle = doc.addStyle("added", null);
         StyleConstants.setForeground(addedStyle, new Color(40, 160, 40));    // 绿色
         StyleConstants.setBackground(addedStyle, new Color(238, 255, 238));
-        
+
         contextStyle = doc.addStyle("context", null);
         StyleConstants.setForeground(contextStyle, Color.GRAY);
 
@@ -154,7 +157,7 @@ public class Tester extends JPanel {
 
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 10));
-        
+
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         JLabel titleLabel = new JLabel("Tester");
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
@@ -164,12 +167,12 @@ public class Tester extends JPanel {
         leftPanel.add(responseModeBtn);
         leftPanel.add(rawModeBtn);
         headerPanel.add(leftPanel, BorderLayout.WEST);
-        
+
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         JButton resetButton = new JButton("Reset");
         resetButton.addActionListener(e -> resetContent());
         rightPanel.add(resetButton);
-        
+
         JButton testButton = new JButton("Test");
         testButton.addActionListener(e -> applyRule());
         rightPanel.add(testButton);
@@ -261,7 +264,8 @@ public class Tester extends JPanel {
         switch (currentMode) {
             case REQUEST -> originalRequestEditor.setRequest(HttpRequest.httpRequest(DEFAULT_REQUEST));
             case RESPONSE -> originalResponseEditor.setResponse(HttpResponse.httpResponse(DEFAULT_RESPONSE));
-            case RAW -> originalRawEditor.setContents(ByteArray.byteArray(DEFAULT_REQUEST.getBytes(StandardCharsets.UTF_8)));
+            case RAW ->
+                    originalRawEditor.setContents(ByteArray.byteArray(DEFAULT_REQUEST.getBytes(StandardCharsets.UTF_8)));
         }
     }
 
@@ -276,7 +280,7 @@ public class Tester extends JPanel {
             DefaultTableModel model = (DefaultTableModel) ruleTable.getModel();
             int modelIndex = ruleTable.convertRowIndexToModel(selectedRow);
             this.selectedRuleData = (Vector<Object>) model.getDataVector().get(modelIndex);
-         
+
             updateEditorMode();
             applyRuleQuietly();
         }
@@ -455,7 +459,8 @@ public class Tester extends JPanel {
             StyledDocument doc = diffTextPane.getStyledDocument();
             doc.remove(0, doc.getLength());
             doc.insertString(0, message + "\n", contextStyle);
-        } catch (BadLocationException ignored) {}
+        } catch (BadLocationException ignored) {
+        }
     }
 
     private String getTargetContent(String scope, HttpRequest request) {

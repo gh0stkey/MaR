@@ -12,11 +12,12 @@ import mar.instances.editor.OriginalReponseEditor;
 import mar.utils.ConfigLoader;
 
 public class MaR implements BurpExtension {
+
     @Override
     public void initialize(MontoyaApi api) {
         // 设置扩展名称
         api.extension().setName("MaR - Matcher and Replacement");
-        String version = "1.2";
+        String version = "1.3";
 
         // 加载扩展后输出的项目信息
         Logging logging = api.logging();
@@ -29,23 +30,43 @@ public class MaR implements BurpExtension {
         ConfigLoader configLoader = new ConfigLoader(api);
 
         // 注册Tab页
-        api.userInterface().registerSuiteTab("MaR", new Main(api, configLoader));
+        api
+                .userInterface()
+                .registerSuiteTab("MaR", new Main(api, configLoader));
 
         // 注册HTTP消息处理器
-        api.http().registerHttpHandler(new HttpMessageActiveHandler(api, configLoader));
+        api
+                .http()
+                .registerHttpHandler(
+                        new HttpMessageActiveHandler(api, configLoader)
+                );
 
         // 注册右键菜单处理器
-        api.userInterface().registerContextMenuItemsProvider(new ContextMenuHandler(api, configLoader));
+        api
+                .userInterface()
+                .registerContextMenuItemsProvider(
+                        new ContextMenuHandler(api, configLoader)
+                );
 
         // 注册消息编辑框（用于展示修改后的请求、修改前的响应）
-        api.userInterface().registerHttpRequestEditorProvider(new ModifiedRequestEditor(api, configLoader));
-        api.userInterface().registerHttpResponseEditorProvider(new OriginalReponseEditor(api, configLoader));
+        api
+                .userInterface()
+                .registerHttpRequestEditorProvider(
+                        new ModifiedRequestEditor(api, configLoader)
+                );
+        api
+                .userInterface()
+                .registerHttpResponseEditorProvider(
+                        new OriginalReponseEditor(api, configLoader)
+                );
 
         // 注册卸载处理器
-        api.extension().registerUnloadingHandler(() -> {
-            // 卸载时清空缓存
-            Config.globalRules.clear();
-            CachePool.clear();
-        });
+        api
+                .extension()
+                .registerUnloadingHandler(() -> {
+                    // 卸载时清空缓存
+                    Config.globalRules.clear();
+                    CachePool.clear();
+                });
     }
 }

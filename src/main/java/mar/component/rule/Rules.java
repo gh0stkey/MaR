@@ -8,7 +8,6 @@ import mar.utils.rule.RuleProcessor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.event.HierarchyEvent;
 
 public class Rules extends JPanel {
     private final MontoyaApi api;

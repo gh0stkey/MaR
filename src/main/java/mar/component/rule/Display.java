@@ -1,14 +1,16 @@
 package mar.component.rule;
 
-import static java.awt.Toolkit.getDefaultToolkit;
+import mar.Config;
 
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import mar.Config;
+import java.awt.*;
+
+import static java.awt.Toolkit.getDefaultToolkit;
 
 public class Display extends JPanel {
 
+    private final int scaledWidth;
     public JComboBox<String> conditionScopeComboBox;
     public JComboBox<String> relationshipComboBox;
     public JTextField conditionTextField;
@@ -18,8 +20,6 @@ public class Display extends JPanel {
     public JTextField replaceTextField;
     public JComboBox<Boolean> matchReplaceRegexComboBox;
     public JComboBox<Boolean> conditionRegexComboBox;
-
-    private final int scaledWidth;
 
     public Display() {
         scaledWidth = (int) ((300 * getDefaultToolkit().getScreenResolution()) /
@@ -56,7 +56,7 @@ public class Display extends JPanel {
             conditionTextField = addTextField(4, innerC, panel);
             addLabel("Regex:", 5, innerC, panel);
             conditionRegexComboBox = addComboBox(
-                    new Boolean[] { false, true },
+                    new Boolean[]{false, true},
                     5,
                     innerC,
                     panel
@@ -81,7 +81,7 @@ public class Display extends JPanel {
             replaceTextField = addTextField(9, innerC, panel);
             addLabel("Regex:", 10, innerC, panel);
             matchReplaceRegexComboBox = addComboBox(
-                    new Boolean[] { false, true },
+                    new Boolean[]{false, true},
                     10,
                     innerC,
                     panel

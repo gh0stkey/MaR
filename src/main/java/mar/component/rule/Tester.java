@@ -32,9 +32,6 @@ public class Tester extends JPanel {
     private static final String REQUEST_CARD = "REQUEST";
     private static final String RESPONSE_CARD = "RESPONSE";
     private static final String RAW_CARD = "RAW";
-
-    private enum EditorMode {REQUEST, RESPONSE, RAW}
-
     private static final String DEFAULT_REQUEST =
             "POST /update HTTP/2\r\n" +
                     "Host: example.com\r\n" +
@@ -51,7 +48,6 @@ public class Tester extends JPanel {
                     "  \"key1\": \"value1\",\r\n" +
                     "  \"key2\": \"value2\"\r\n" +
                     "}";
-
     private static final String DEFAULT_RESPONSE =
             "HTTP/2 200 OK\r\n" +
                     "Content-Type: text/html; charset=UTF-8\r\n" +
@@ -66,38 +62,29 @@ public class Tester extends JPanel {
                     "  <body>\r\n" +
                     "  </body>\r\n" +
                     "</html>";
-
     private final MontoyaApi api;
     private final HttpMessageModifier modifier;
-
     private final HttpRequestEditor originalRequestEditor;
     private final HttpRequestEditor modifiedRequestEditor;
-
     private final HttpResponseEditor originalResponseEditor;
     private final HttpResponseEditor modifiedResponseEditor;
-
     private final RawEditor originalRawEditor;
     private final RawEditor modifiedRawEditor;
-
     private final CardLayout originalCardLayout;
     private final CardLayout modifiedCardLayout;
     private final JPanel originalCardPanel;
     private final JPanel modifiedCardPanel;
-
     // Diff 面板
     private final JTextPane diffTextPane;
     private final Style deletedStyle;
     private final Style addedStyle;
     private final Style contextStyle;
-
     // 模式切换
     private final ButtonGroup modeButtonGroup;
     private final JRadioButton requestModeBtn;
     private final JRadioButton responseModeBtn;
     private final JRadioButton rawModeBtn;
-
     private EditorMode currentMode = null;
-
     private Vector<Object> selectedRuleData;
 
     public Tester(MontoyaApi api) {
@@ -294,7 +281,6 @@ public class Tester extends JPanel {
         }
     }
 
-
     private void applyRuleQuietly() {
         if (selectedRuleData == null) {
             return;
@@ -489,4 +475,6 @@ public class Tester extends JPanel {
             default -> response.toString();
         };
     }
+
+    private enum EditorMode {REQUEST, RESPONSE, RAW}
 }

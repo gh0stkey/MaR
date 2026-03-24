@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Vector;
 
 import static javax.swing.JOptionPane.YES_OPTION;
@@ -41,6 +42,33 @@ public class Rule extends JPanel {
         this.tester = tester;
 
         initComponents(data);
+    }
+
+    /**
+     * 从Display对象创建规则数据Vector
+     */
+    public static Vector<Object> createRuleDataFromDisplay(
+            Display ruleDisplay,
+            boolean isEnabled
+    ) {
+        Vector<Object> ruleData = new Vector<>();
+        ruleData.add(isEnabled);
+        ruleData.add(ruleDisplay.ruleNameTextField.getText());
+        ruleData.add(
+                ruleDisplay.conditionScopeComboBox.getSelectedItem().toString()
+        );
+        ruleData.add(
+                ruleDisplay.relationshipComboBox.getSelectedItem().toString()
+        );
+        ruleData.add(ruleDisplay.conditionTextField.getText());
+        ruleData.add(ruleDisplay.conditionRegexComboBox.getSelectedItem());
+        ruleData.add(
+                ruleDisplay.matchReplaceScopeComboBox.getSelectedItem().toString()
+        );
+        ruleData.add(ruleDisplay.matchTextField.getText());
+        ruleData.add(ruleDisplay.replaceTextField.getText());
+        ruleData.add(ruleDisplay.matchReplaceRegexComboBox.getSelectedItem());
+        return ruleData;
     }
 
     private void initComponents(Object[][] data) {
@@ -274,68 +302,6 @@ public class Rule extends JPanel {
     }
 
     /**
-     * 自定义表头渲染器，在Loaded列显示复选框
-     */
-    private class HeaderCheckBoxRenderer implements TableCellRenderer {
-
-        private final TableCellRenderer originalRenderer;
-
-        public HeaderCheckBoxRenderer(TableCellRenderer originalRenderer) {
-            this.originalRenderer = originalRenderer;
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable table,
-                Object value,
-                boolean isSelected,
-                boolean hasFocus,
-                int row,
-                int column
-        ) {
-            if (column == 0) {
-                // 获取原始表头组件作为背景
-                Component originalComponent =
-                        originalRenderer.getTableCellRendererComponent(
-                                table,
-                                value,
-                                isSelected,
-                                hasFocus,
-                                row,
-                                column
-                        );
-
-                // 创建一个面板来包含复选框，保持原始样式
-                JPanel panel = new JPanel(new BorderLayout());
-                panel.setOpaque(true);
-
-                // 复制原始组件的样式
-                if (originalComponent instanceof JComponent) {
-                    JComponent origComp = (JComponent) originalComponent;
-                    panel.setBackground(origComp.getBackground());
-                    panel.setBorder(origComp.getBorder());
-                }
-
-                // 更新复选框状态并添加到面板中心
-                updateHeaderCheckBoxState((DefaultTableModel) table.getModel());
-                headerCheckBox.setOpaque(false); // 让复选框透明，显示背景
-                panel.add(headerCheckBox, BorderLayout.CENTER);
-
-                return panel;
-            } else {
-                return originalRenderer.getTableCellRendererComponent(
-                        table,
-                        value,
-                        isSelected,
-                        hasFocus,
-                        row,
-                        column
-                );
-            }
-        }
-    }
-
-    /**
      * 切换所有规则的开启/关闭状态
      */
     private void toggleAllRules(JTable ruleTable) {
@@ -452,33 +418,6 @@ public class Rule extends JPanel {
     }
 
     /**
-     * 从Display对象创建规则数据Vector
-     */
-    public static Vector<Object> createRuleDataFromDisplay(
-            Display ruleDisplay,
-            boolean isEnabled
-    ) {
-        Vector<Object> ruleData = new Vector<>();
-        ruleData.add(isEnabled);
-        ruleData.add(ruleDisplay.ruleNameTextField.getText());
-        ruleData.add(
-                ruleDisplay.conditionScopeComboBox.getSelectedItem().toString()
-        );
-        ruleData.add(
-                ruleDisplay.relationshipComboBox.getSelectedItem().toString()
-        );
-        ruleData.add(ruleDisplay.conditionTextField.getText());
-        ruleData.add(ruleDisplay.conditionRegexComboBox.getSelectedItem());
-        ruleData.add(
-                ruleDisplay.matchReplaceScopeComboBox.getSelectedItem().toString()
-        );
-        ruleData.add(ruleDisplay.matchTextField.getText());
-        ruleData.add(ruleDisplay.replaceTextField.getText());
-        ruleData.add(ruleDisplay.matchReplaceRegexComboBox.getSelectedItem());
-        return ruleData;
-    }
-
-    /**
      * 显示规则编辑对话框
      */
     private boolean showRuleDialog(Display ruleDisplay, String title) {
@@ -592,26 +531,116 @@ public class Rule extends JPanel {
             return;
         }
 
+        int selectedCount = ruleTable.getSelectedRowCount();
+        String message =
+                selectedCount == 1
+                        ? "Are you sure you want to remove this rule?"
+                        : String.format(
+                        "Are you sure you want to remove %d rules?",
+                        selectedCount
+                );
+
         if (
                 JOptionPane.showConfirmDialog(
                         this,
-                        "Are you sure you want to remove this rule?",
+                        message,
                         "Info",
                         JOptionPane.YES_NO_OPTION
                 ) ==
                         0
         ) {
             DefaultTableModel model = (DefaultTableModel) ruleTable.getModel();
-            int select = ruleTable.convertRowIndexToModel(
-                    ruleTable.getSelectedRow()
-            );
+            int[] selectedRows = ruleTable.getSelectedRows();
 
-            model.removeRow(select);
-            ruleProcessor.removeRule(select, getCurrentTabTitle());
+            // 转换为模型索引并降序排序，从后往前删除避免索引偏移
+            int[] modelIndices = new int[selectedRows.length];
+            for (int i = 0; i < selectedRows.length; i++) {
+                modelIndices[i] = ruleTable.convertRowIndexToModel(
+                        selectedRows[i]
+                );
+            }
+            Arrays.sort(modelIndices);
+            // 反转为降序
+            for (
+                    int left = 0, right = modelIndices.length - 1;
+                    left < right;
+                    left++, right--
+            ) {
+                int tmp = modelIndices[left];
+                modelIndices[left] = modelIndices[right];
+                modelIndices[right] = tmp;
+            }
+
+            for (int modelIndex : modelIndices) {
+                model.removeRow(modelIndex);
+            }
+            ruleProcessor.removeRules(modelIndices, getCurrentTabTitle());
 
             // 删除规则后更新表头复选框状态
             updateHeaderCheckBoxState(model);
             ruleTable.getTableHeader().repaint();
+        }
+    }
+
+    /**
+     * 自定义表头渲染器，在Loaded列显示复选框
+     */
+    private class HeaderCheckBoxRenderer implements TableCellRenderer {
+
+        private final TableCellRenderer originalRenderer;
+
+        public HeaderCheckBoxRenderer(TableCellRenderer originalRenderer) {
+            this.originalRenderer = originalRenderer;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column
+        ) {
+            if (column == 0) {
+                // 获取原始表头组件作为背景
+                Component originalComponent =
+                        originalRenderer.getTableCellRendererComponent(
+                                table,
+                                value,
+                                isSelected,
+                                hasFocus,
+                                row,
+                                column
+                        );
+
+                // 创建一个面板来包含复选框，保持原始样式
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setOpaque(true);
+
+                // 复制原始组件的样式
+                if (originalComponent instanceof JComponent) {
+                    JComponent origComp = (JComponent) originalComponent;
+                    panel.setBackground(origComp.getBackground());
+                    panel.setBorder(origComp.getBorder());
+                }
+
+                // 更新复选框状态并添加到面板中心
+                updateHeaderCheckBoxState((DefaultTableModel) table.getModel());
+                headerCheckBox.setOpaque(false); // 让复选框透明，显示背景
+                panel.add(headerCheckBox, BorderLayout.CENTER);
+
+                return panel;
+            } else {
+                return originalRenderer.getTableCellRendererComponent(
+                        table,
+                        value,
+                        isSelected,
+                        hasFocus,
+                        row,
+                        column
+                );
+            }
         }
     }
 }

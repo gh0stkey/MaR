@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class RuleProcessor {
+
     private final MontoyaApi api;
     private final ConfigLoader configLoader;
 
@@ -36,22 +37,26 @@ public class RuleProcessor {
 
         Config.globalRules.forEach((k, v) -> {
             List<Info> ruleList = Arrays.stream(v)
-                    .map(objects -> new Info(
-                            (boolean) objects[0],
-                            (String) objects[1],
-                            (String) objects[2],
-                            (String) objects[3],
-                            (String) objects[4],
-                            (boolean) objects[5],
-                            (String) objects[6],
-                            (String) objects[7],
-                            (String) objects[8],
-                            (boolean) objects[9]))
+                    .map(objects ->
+                            new Info(
+                                    (boolean) objects[0],
+                                    (String) objects[1],
+                                    (String) objects[2],
+                                    (String) objects[3],
+                                    (String) objects[4],
+                                    (boolean) objects[5],
+                                    (String) objects[6],
+                                    (String) objects[7],
+                                    (String) objects[8],
+                                    (boolean) objects[9]
+                            )
+                    )
                     .collect(Collectors.toList());
             ruleGroupList.add(new Group(k, ruleList));
         });
 
-        List<Map<String, Object>> outputGroupsMap = ruleGroupList.stream()
+        List<Map<String, Object>> outputGroupsMap = ruleGroupList
+                .stream()
                 .map(Group::getFields)
                 .collect(Collectors.toList());
 
@@ -59,7 +64,12 @@ public class RuleProcessor {
         outputMap.put("rules", outputGroupsMap);
 
         File f = new File(configLoader.getRulesFilePath());
-        try (Writer ws = new OutputStreamWriter(Files.newOutputStream(f.toPath()), StandardCharsets.UTF_8)) {
+        try (
+                Writer ws = new OutputStreamWriter(
+                        Files.newOutputStream(f.toPath()),
+                        StandardCharsets.UTF_8
+                )
+        ) {
             yaml.dump(outputMap, ws);
         } catch (Exception ignored) {
         }
@@ -71,15 +81,30 @@ public class RuleProcessor {
     }
 
     public void addRule(Vector data, String type) {
-        ArrayList<Object[]> x = new ArrayList<>(Arrays.asList(Config.globalRules.get(type)));
+        ArrayList<Object[]> x = new ArrayList<>(
+                Arrays.asList(Config.globalRules.get(type))
+        );
         x.add(data.toArray());
         Config.globalRules.put(type, x.toArray(new Object[x.size()][]));
         this.rulesFormatAndSave();
     }
 
     public void removeRule(int select, String type) {
-        ArrayList<Object[]> x = new ArrayList<>(Arrays.asList(Config.globalRules.get(type)));
+        ArrayList<Object[]> x = new ArrayList<>(
+                Arrays.asList(Config.globalRules.get(type))
+        );
         x.remove(select);
+        Config.globalRules.put(type, x.toArray(new Object[x.size()][]));
+        this.rulesFormatAndSave();
+    }
+
+    public void removeRules(int[] sortedDescIndices, String type) {
+        ArrayList<Object[]> x = new ArrayList<>(
+                Arrays.asList(Config.globalRules.get(type))
+        );
+        for (int index : sortedDescIndices) {
+            x.remove(index);
+        }
         Config.globalRules.put(type, x.toArray(new Object[x.size()][]));
         this.rulesFormatAndSave();
     }
@@ -107,5 +132,3 @@ public class RuleProcessor {
         return name + i;
     }
 }
-
-

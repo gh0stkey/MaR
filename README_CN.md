@@ -1,7 +1,7 @@
 <div align="center">
 <img src="images/logo.png" style="width: 20%" />
 <h4><a href="https://github.com/gh0stkey/MaR">精准匹配，智能替换！</a></h4>
-<h5>第一作者： <a href="https://github.com/gh0stkey">EvilChen</a><br>第二作者： <a href="https://github.com/0chencc">0chencc</a>（米斯特安全团队）</h5>
+<h5>第一作者： <a href="https://github.com/gh0stkey">EvilChen</a><br>第二作者： <a href="https://github.com/0chencc">0chencc</a>（米斯特安全团队）<br>第三作者： <a href="https://github.com/Arg3Sea">ArG3</a></h5>
 </div>
 
 README 版本: \[[English](README.md) | [简体中文](README_CN.md)\]
@@ -44,9 +44,12 @@ README 版本: \[[English](README.md) | [简体中文](README_CN.md)\]
 | Relationship | 匹配关系，支持"Matches"（匹配）和"Does not match"（不匹配） |
 | Condition | 条件内容，用于判断是否执行替换 |
 | C-Regex | 条件是否使用正则表达式 |
+| E-Scope | 提取作用域，指定从哪个部分提取数据用于动态替换 |
+| F-Regex | 第一正则，用于从E-Scope目标中提取内容，捕获组可在Match/Replace字段中通过 `{1}`、`{2}` 等标识符引用 |
+| S-Regex | 第二正则（可选），对F-Regex第一个捕获组的结果进行二次提取 |
 | M-Scope | 替换作用域，指定在哪个部分执行替换 |
-| Match | 匹配内容，要被替换的内容 |
-| Replace | 替换内容，替换后的新内容 |
+| Match | 匹配内容，要被替换的内容，支持Extract中的 `{n}` 标识符 |
+| Replace | 替换内容，替换后的新内容，支持Extract中的 `{n}` 标识符 |
 | M-Regex | 替换是否使用正则表达式 |
 
 **支持的作用域**：

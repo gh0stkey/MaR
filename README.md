@@ -1,7 +1,7 @@
 <div align="center">
 <img src="images/logo.png" style="width: 20%" />
 <h4><a href="https://github.com/gh0stkey/MaR">Perform intelligent replacement based on precise matching.</a></h4>
-<h5>First Author: <a href="https://github.com/gh0stkey">EvilChen</a><br>Second Author: <a href="https://github.com/0chencc">0chencc</a> (Mystery Security Team)</h5>
+<h5>First Author: <a href="https://github.com/gh0stkey">EvilChen</a><br>Second Author: <a href="https://github.com/0chencc">0chencc</a> (Mystery Security Team)<br>Third Author: <a href="https://github.com/Arg3Sea">ArG3</a></h5>
 </div>
 
 README Version: \[[English](README.md) | [简体中文](README_CN.md)\]
@@ -44,9 +44,12 @@ You can select text in the HTTP request/response editor, right-click and choose 
 | Relationship | Match relationship, supports "Matches" and "Does not match" |
 | Condition | Condition content, used to determine whether to execute replacement |
 | C-Regex | Whether the condition uses regular expression |
+| E-Scope | Extract scope, specifies which part to extract data from for dynamic replacement |
+| F-Regex | First regex, used to extract content from the E-Scope target. Captured groups can be referenced in Match/Replace fields using `{1}`, `{2}`, etc. |
+| S-Regex | Second regex (optional), applied to the first capture group result of F-Regex for further extraction |
 | M-Scope | Replacement scope, specifies which part to execute replacement |
-| Match | Match content, the content to be replaced |
-| Replace | Replace content, the new content after replacement |
+| Match | Match content, the content to be replaced. Supports `{n}` identifiers from Extract |
+| Replace | Replace content, the new content after replacement. Supports `{n}` identifiers from Extract |
 | M-Regex | Whether the replacement uses regular expression |
 
 **Supported Scopes**:

@@ -15,6 +15,9 @@ public class Display extends JPanel {
     public JComboBox<String> relationshipComboBox;
     public JTextField conditionTextField;
     public JTextField ruleNameTextField;
+    public JTextField fRegexTextField;
+    public JTextField sRegexTextField;
+    public JComboBox<String> extractScopeComboBox;
     public JComboBox<String> matchReplaceScopeComboBox;
     public JTextField matchTextField;
     public JTextField replaceTextField;
@@ -67,22 +70,33 @@ public class Display extends JPanel {
             );
         });
 
-        createSection("Match and Replace", 6, c, (innerC, panel) -> {
-            addLabel("Scope:", 7, innerC, panel);
+        createSection("Extract", 6, c, (innerC, panel) -> {
+            addLabel("Scope:", 0, innerC, panel);
+            extractScopeComboBox = addComboBox(Config.scope, 0, innerC, panel);
+
+            addLabel("F-Regex:", 1, innerC, panel);
+            fRegexTextField = addTextField(1, innerC, panel);
+
+            addLabel("S-Regex:", 2, innerC, panel);
+            sRegexTextField = addTextField(2, innerC, panel);
+        });
+
+        createSection("Match and Replace", 7, c, (innerC, panel) -> {
+            addLabel("Scope:", 0, innerC, panel);
             matchReplaceScopeComboBox = addComboBox(
                     Config.scope,
-                    7,
+                    0,
                     innerC,
                     panel
             );
-            addLabel("Match:", 8, innerC, panel);
-            matchTextField = addTextField(8, innerC, panel);
-            addLabel("Replace:", 9, innerC, panel);
-            replaceTextField = addTextField(9, innerC, panel);
-            addLabel("Regex:", 10, innerC, panel);
+            addLabel("Match:", 1, innerC, panel);
+            matchTextField = addTextField(1, innerC, panel);
+            addLabel("Replace:", 2, innerC, panel);
+            replaceTextField = addTextField(2, innerC, panel);
+            addLabel("Regex:", 3, innerC, panel);
             matchReplaceRegexComboBox = addComboBox(
                     new Boolean[]{false, true},
-                    10,
+                    3,
                     innerC,
                     panel
             );

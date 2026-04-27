@@ -4,9 +4,24 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Info {
+
     private Map<String, Object> fields;
 
-    public Info(boolean loaded, String name, String c_scope, String relationship, String condition, boolean c_regex, String m_scope, String match, String replace, boolean m_regex) {
+    public Info(
+            boolean loaded,
+            String name,
+            String c_scope,
+            String relationship,
+            String condition,
+            boolean c_regex,
+            String e_scope,
+            String f_regex,
+            String s_regex,
+            String m_scope,
+            String match,
+            String replace,
+            boolean m_regex
+    ) {
         fields = new LinkedHashMap<>();
         fields.put("name", name);
         fields.put("loaded", loaded);
@@ -14,6 +29,9 @@ public class Info {
         fields.put("relationship", relationship);
         fields.put("condition", condition);
         fields.put("c_regex", c_regex);
+        fields.put("e_scope", e_scope);
+        fields.put("f_regex", f_regex);
+        fields.put("s_regex", s_regex);
         fields.put("m_scope", m_scope);
         fields.put("match", match);
         fields.put("replace", replace);

@@ -17,12 +17,12 @@ public class MaR implements BurpExtension {
     public void initialize(MontoyaApi api) {
         // 设置扩展名称
         api.extension().setName("MaR - Matcher and Replacement");
-        String version = "1.4";
+        String version = "2.0";
 
         // 加载扩展后输出的项目信息
         Logging logging = api.logging();
         logging.logToOutput("[ HACK THE WORLD - TO DO IT ]");
-        logging.logToOutput("[#] Author: EvilChen && 0chencc");
+        logging.logToOutput("[#] Author: EvilChen && 0chencc && ArG3");
         logging.logToOutput("[#] Github: https://github.com/gh0stkey/MaR");
         logging.logToOutput("[#] Version: " + version);
 

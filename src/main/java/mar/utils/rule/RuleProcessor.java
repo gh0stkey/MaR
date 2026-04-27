@@ -48,7 +48,10 @@ public class RuleProcessor {
                                     (String) objects[6],
                                     (String) objects[7],
                                     (String) objects[8],
-                                    (boolean) objects[9]
+                                    (String) objects[9],
+                                    (String) objects[10],
+                                    (String) objects[11],
+                                    (boolean) objects[12]
                             )
                     )
                     .collect(Collectors.toList());

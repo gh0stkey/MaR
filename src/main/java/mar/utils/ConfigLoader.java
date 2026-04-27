@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class ConfigLoader {
+
     private final MontoyaApi api;
     private final String rulesFilePath;
     private final String configFilePath;
@@ -58,7 +59,10 @@ public class ConfigLoader {
 
     private String determineConfigPath() {
         // 优先级1：用户根目录
-        String userConfigPath = String.format("%s/.config/MaR", System.getProperty("user.home"));
+        String userConfigPath = String.format(
+                "%s/.config/MaR",
+                System.getProperty("user.home")
+        );
         if (isValidConfigPath(userConfigPath)) {
             return userConfigPath;
         }
@@ -83,30 +87,57 @@ public class ConfigLoader {
         Map<String, Object[][]> rules = new HashMap<>();
 
         try {
-            InputStream inputStream = Files.newInputStream(Paths.get(getRulesFilePath()));
+            InputStream inputStream = Files.newInputStream(
+                    Paths.get(getRulesFilePath())
+            );
             DumperOptions dop = new DumperOptions();
             dop.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
             Representer representer = new Representer(dop);
-            Map<String, Object> rulesMap = new Yaml(representer, dop).load(inputStream);
+            Map<String, Object> rulesMap = new Yaml(representer, dop).load(
+                    inputStream
+            );
             Object rulesObj = rulesMap.get("rules");
             if (rulesObj instanceof List) {
-                List<Map<String, Object>> groupData = (List<Map<String, Object>>) rulesObj;
+                List<Map<String, Object>> groupData = (List<
+                        Map<String, Object>
+                        >) rulesObj;
                 for (Map<String, Object> groupFields : groupData) {
                     ArrayList<Object[]> data = new ArrayList<>();
 
                     Object ruleObj = groupFields.get("rule");
                     if (ruleObj instanceof List) {
-                        List<Map<String, Object>> ruleData = (List<Map<String, Object>>) ruleObj;
+                        List<Map<String, Object>> ruleData = (List<
+                                Map<String, Object>
+                                >) ruleObj;
                         for (Map<String, Object> ruleFields : ruleData) {
-                            Object[] valuesArray = new Object[Config.ruleFields.length];
+                            Object[] valuesArray =
+                                    new Object[Config.ruleFields.length];
                             for (int i = 0; i < Config.ruleFields.length; i++) {
-                                valuesArray[i] = ruleFields.get(Config.ruleFields[i].toLowerCase().replace("-", "_"));
+                                String key = Config
+                                        .ruleFields[i].toLowerCase().replace(
+                                        "-",
+                                        "_"
+                                );
+                                Object value = ruleFields.get(key);
+                                // 为新增字段提供默认值，兼容旧版YAML
+                                if (value == null) {
+                                    valuesArray[i] = switch (key) {
+                                        case "e_scope",
+                                             "f_regex",
+                                             "s_regex" -> "";
+                                        default -> null;
+                                    };
+                                } else {
+                                    valuesArray[i] = value;
+                                }
                             }
                             data.add(valuesArray);
                         }
                     }
 
-                    Object[][] dataArray = data.toArray(new Object[data.size()][]);
+                    Object[][] dataArray = data.toArray(
+                            new Object[data.size()][]
+                    );
                     rules.put(groupFields.get("group").toString(), dataArray);
                 }
             }
@@ -127,10 +158,15 @@ public class ConfigLoader {
     }
 
     private boolean copyRulesToFile(String targetFilePath) {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("rules/Rules.yml");
+        InputStream inputStream = getClass()
+                .getClassLoader()
+                .getResourceAsStream("rules/Rules.yml");
         File targetFile = new File(targetFilePath);
 
-        try (inputStream; OutputStream outputStream = new FileOutputStream(targetFile)) {
+        try (
+                inputStream;
+                OutputStream outputStream = new FileOutputStream(targetFile)
+        ) {
             if (inputStream != null) {
                 byte[] buffer = new byte[1024];
                 int length;
@@ -151,7 +187,10 @@ public class ConfigLoader {
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("MaRScope", getScope());
         try {
-            Writer ws = new OutputStreamWriter(Files.newOutputStream(Paths.get(configFilePath)), StandardCharsets.UTF_8);
+            Writer ws = new OutputStreamWriter(
+                    Files.newOutputStream(Paths.get(configFilePath)),
+                    StandardCharsets.UTF_8
+            );
             yaml.dump(r, ws);
             ws.close();
         } catch (Exception ignored) {
@@ -188,7 +227,11 @@ public class ConfigLoader {
             return defaultValue;
         }
 
-        try (InputStream inorder = Files.newInputStream(Paths.get(configFilePath))) {
+        try (
+                InputStream inorder = Files.newInputStream(
+                        Paths.get(configFilePath)
+                )
+        ) {
             Map<String, Object> r = new Yaml().load(inorder);
 
             if (r.containsKey(name)) {
@@ -204,7 +247,12 @@ public class ConfigLoader {
         Map<String, Object> currentConfig = loadCurrentConfig();
         currentConfig.put(name, value);
 
-        try (Writer ws = new OutputStreamWriter(Files.newOutputStream(Paths.get(configFilePath)), StandardCharsets.UTF_8)) {
+        try (
+                Writer ws = new OutputStreamWriter(
+                        Files.newOutputStream(Paths.get(configFilePath)),
+                        StandardCharsets.UTF_8
+                )
+        ) {
             yaml.dump(currentConfig, ws);
         } catch (Exception ignored) {
         }

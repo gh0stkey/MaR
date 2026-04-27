@@ -63,6 +63,11 @@ public class Rule extends JPanel {
         ruleData.add(ruleDisplay.conditionTextField.getText());
         ruleData.add(ruleDisplay.conditionRegexComboBox.getSelectedItem());
         ruleData.add(
+                ruleDisplay.extractScopeComboBox.getSelectedItem().toString()
+        );
+        ruleData.add(ruleDisplay.fRegexTextField.getText());
+        ruleData.add(ruleDisplay.sRegexTextField.getText());
+        ruleData.add(
                 ruleDisplay.matchReplaceScopeComboBox.getSelectedItem().toString()
         );
         ruleData.add(ruleDisplay.matchTextField.getText());
@@ -117,8 +122,8 @@ public class Rule extends JPanel {
         DefaultTableModel model = new DefaultTableModel() {
             @Override
             public Class<?> getColumnClass(int column) {
-                // 0: Loaded, 5: C-Regex, 9: M-Regex
-                return (column == 0 || column == 5 || column == 9)
+                // 0: Loaded, 5: C-Regex, 12: M-Regex
+                return (column == 0 || column == 5 || column == 12)
                         ? Boolean.class
                         : String.class;
             }
@@ -189,6 +194,12 @@ public class Rule extends JPanel {
         ruleTable
                 .getColumnModel()
                 .getColumn(6)
+                .setCellEditor(
+                        new DefaultCellEditor(new JComboBox<>(Config.scope))
+                );
+        ruleTable
+                .getColumnModel()
+                .getColumn(9)
                 .setCellEditor(
                         new DefaultCellEditor(new JComboBox<>(Config.scope))
                 );
@@ -403,17 +414,26 @@ public class Rule extends JPanel {
         ruleDisplay.conditionRegexComboBox.setSelectedItem(
                 ruleTable.getValueAt(selectedRow, 5)
         );
-        ruleDisplay.matchReplaceScopeComboBox.setSelectedItem(
+        ruleDisplay.extractScopeComboBox.setSelectedItem(
                 ruleTable.getValueAt(selectedRow, 6).toString()
         );
-        ruleDisplay.matchTextField.setText(
+        ruleDisplay.fRegexTextField.setText(
                 ruleTable.getValueAt(selectedRow, 7).toString()
         );
-        ruleDisplay.replaceTextField.setText(
+        ruleDisplay.sRegexTextField.setText(
                 ruleTable.getValueAt(selectedRow, 8).toString()
         );
+        ruleDisplay.matchReplaceScopeComboBox.setSelectedItem(
+                ruleTable.getValueAt(selectedRow, 9).toString()
+        );
+        ruleDisplay.matchTextField.setText(
+                ruleTable.getValueAt(selectedRow, 10).toString()
+        );
+        ruleDisplay.replaceTextField.setText(
+                ruleTable.getValueAt(selectedRow, 11).toString()
+        );
         ruleDisplay.matchReplaceRegexComboBox.setSelectedItem(
-                ruleTable.getValueAt(selectedRow, 9)
+                ruleTable.getValueAt(selectedRow, 12)
         );
     }
 

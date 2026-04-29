@@ -3,14 +3,11 @@ package mar.component.rule;
 import mar.Config;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
-
-import static java.awt.Toolkit.getDefaultToolkit;
 
 public class Display extends JPanel {
 
-    private final int scaledWidth;
+    private static final int FIELD_WIDTH = 300;
     public JComboBox<String> conditionScopeComboBox;
     public JComboBox<String> relationshipComboBox;
     public JTextField conditionTextField;
@@ -25,8 +22,6 @@ public class Display extends JPanel {
     public JComboBox<Boolean> conditionRegexComboBox;
 
     public Display() {
-        scaledWidth = (int) ((300 * getDefaultToolkit().getScreenResolution()) /
-                96.0);
         initComponents();
     }
 
@@ -167,7 +162,7 @@ public class Display extends JPanel {
     ) {
         JTextField textField = new JTextField();
         textField.setPreferredSize(
-                new Dimension(scaledWidth, textField.getPreferredSize().height)
+            new Dimension(FIELD_WIDTH, textField.getPreferredSize().height)
         );
         c.gridx = 1;
         c.gridy = y;
@@ -183,7 +178,7 @@ public class Display extends JPanel {
     ) {
         JComboBox<T> comboBox = new JComboBox<>(items);
         comboBox.setPreferredSize(
-                new Dimension(scaledWidth, comboBox.getPreferredSize().height)
+            new Dimension(FIELD_WIDTH, comboBox.getPreferredSize().height)
         );
         c.gridx = 1;
         c.gridy = y;
@@ -201,24 +196,16 @@ public class Display extends JPanel {
         GridBagConstraints innerC = new GridBagConstraints();
         innerC.fill = GridBagConstraints.HORIZONTAL;
         innerC.weightx = 1.0;
+        innerC.insets = new Insets(3, 5, 3, 5);
 
-        TitledBorder titledBorder = BorderFactory.createTitledBorder(title);
+        panel.setBorder(BorderFactory.createTitledBorder(title));
 
         sectionContent.apply(innerC, panel);
-
-        JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setBorder(titledBorder);
-        scrollPane.setVerticalScrollBarPolicy(
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
-        );
-        scrollPane.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
-        );
 
         outerC.gridx = 0;
         outerC.gridy = startY;
         outerC.gridwidth = 2;
-        add(scrollPane, outerC);
+        add(panel, outerC);
     }
 
     @FunctionalInterface

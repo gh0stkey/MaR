@@ -4,6 +4,7 @@ import burp.api.montoya.MontoyaApi;
 import mar.component.rule.Rules;
 import mar.utils.ConfigLoader;
 import mar.utils.UIEnhancer;
+import mar.utils.WrapLayout;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -66,11 +67,9 @@ public class Config extends JPanel {
         JPanel settingPanel = createConfigTablePanel(settingMode);
         JPanel northPanel = new JPanel(new BorderLayout());
 
-        JPanel scopePanel = getScopePanel();
-        JScrollPane scopeScrollPane = new JScrollPane(scopePanel);
-        scopeScrollPane.setBorder(new TitledBorder("Scope"));
-
-        northPanel.add(scopeScrollPane, BorderLayout.SOUTH);
+        northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
+        northPanel.setBorder(new TitledBorder("General"));
+        northPanel.add(getScopePanel());
         settingPanel.add(northPanel, BorderLayout.NORTH);
 
         configTabbedPanel.add("Setting", settingPanel);
@@ -284,9 +283,8 @@ public class Config extends JPanel {
     }
 
     private JPanel getScopePanel() {
-        JPanel scopePanel = new JPanel();
-        scopePanel.setLayout(new BoxLayout(scopePanel, BoxLayout.X_AXIS));
-        scopePanel.setBorder(new EmptyBorder(3, 0, 6, 0));
+        JPanel scopePanel = new JPanel(new WrapLayout(FlowLayout.LEFT, 5, 2));
+        scopePanel.add(new JLabel("Scope:"));
 
         String[] scopeInit = mar.Config.scopeOptions.split("\\|");
         String[] scopeMode = configLoader.getScope().split("\\|");

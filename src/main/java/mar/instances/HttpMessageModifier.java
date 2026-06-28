@@ -245,8 +245,9 @@ public class HttpMessageModifier {
                 }
             } else {
                 // 非正则表达式替换
-                byte[] matchBytes = match.getBytes(StandardCharsets.UTF_8);
-                byte[] replaceBytes = replace.getBytes(StandardCharsets.UTF_8);
+                // 使用 ISO-8859-1 保持字节透明性，与正则分支一致
+                byte[] matchBytes = match.getBytes(StandardCharsets.ISO_8859_1);
+                byte[] replaceBytes = replace.getBytes(StandardCharsets.ISO_8859_1);
 
                 // 查找所有匹配位置
                 List<Integer> matchPositions = getIntegerList(
@@ -492,37 +493,36 @@ public class HttpMessageModifier {
             boolean regex,
             Function<List<HttpHeader>, T> headerUpdater
     ) {
-        // 将所有header合并成字符串
-        String headersStr = headers
-                .stream()
-                .map(header -> header.name() + ": " + header.value())
-                .collect(Collectors.joining("\r\n"));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < headers.size(); i++) {
+            if (i > 0) {
+                sb.append("\r\n");
+            }
+            sb.append(headers.get(i).name());
+            sb.append(": ");
+            sb.append(headers.get(i).value());
+        }
+        String headerBlock = sb.toString();
+        String newBlock = matchAndReplace(headerBlock, match, replace, regex);
 
-        // 一次性处理所有header
-        String modifiedHeaders = matchAndReplace(
-                headersStr,
-                match,
-                replace,
-                regex
-        );
-
-        // 如果没有变化，直接返回原始消息
-        if (modifiedHeaders.equals(headersStr)) {
+        if (headerBlock.equals(newBlock)) {
             return message;
         }
 
-        // 将修改后的字符串转换回header列表
-        List<HttpHeader> newHeaders = Arrays.stream(
-                        modifiedHeaders.split("\r\n")
-                )
-                .filter(line -> line.contains(": "))
-                .map(line -> {
-                    int colonIndex = line.indexOf(": ");
-                    String name = line.substring(0, colonIndex);
-                    String value = line.substring(colonIndex + 2);
-                    return HttpHeader.httpHeader(name, value);
-                })
-                .collect(Collectors.toList());
+        List<HttpHeader> newHeaders = new ArrayList<>();
+        for (String line : newBlock.split("\r\n")) {
+            if (line.isEmpty()) {
+                continue;
+            }
+            int colonSpace = line.indexOf(": ");
+            if (colonSpace >= 0) {
+                newHeaders.add(HttpHeader.httpHeader(
+                        line.substring(0, colonSpace),
+                        line.substring(colonSpace + 2)));
+            } else {
+                newHeaders.add(HttpHeader.httpHeader(line, ""));
+            }
+        }
 
         return headerUpdater.apply(newHeaders);
     }

@@ -6,15 +6,14 @@ import burp.api.montoya.http.handler.*;
 import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import mar.Config;
-import mar.cache.CachePool;
-import mar.utils.ConfigLoader;
-import mar.utils.HttpUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import mar.Config;
+import mar.cache.CachePool;
+import mar.utils.ConfigLoader;
+import mar.utils.HttpUtils;
 
 public class HttpMessageActiveHandler implements HttpHandler {
 
@@ -23,11 +22,11 @@ public class HttpMessageActiveHandler implements HttpHandler {
     private final HttpUtils httpUtils;
     private final HttpMessageModifier modifier;
     private final ThreadLocal<List<Modification>> responseModifications =
-            ThreadLocal.withInitial(ArrayList::new);
+        ThreadLocal.withInitial(ArrayList::new);
     private final ThreadLocal<List<ResponseRule>> responseRules =
-            ThreadLocal.withInitial(ArrayList::new);
-    private final ThreadLocal<Boolean> isScope = ThreadLocal.withInitial(() ->
-            true
+        ThreadLocal.withInitial(ArrayList::new);
+    private final ThreadLocal<Boolean> isScope = ThreadLocal.withInitial(
+        () -> true
     );
 
     public HttpMessageActiveHandler(MontoyaApi api, ConfigLoader configLoader) {
@@ -39,7 +38,7 @@ public class HttpMessageActiveHandler implements HttpHandler {
 
     @Override
     public RequestToBeSentAction handleHttpRequestToBeSent(
-            HttpRequestToBeSent httpRequestToBeSent
+        HttpRequestToBeSent httpRequestToBeSent
     ) {
         HttpRequest request = httpRequestToBeSent;
         Annotations annotations = httpRequestToBeSent.annotations();
@@ -47,12 +46,12 @@ public class HttpMessageActiveHandler implements HttpHandler {
         List<ResponseRule> rules = new ArrayList<>();
 
         String toolType = httpRequestToBeSent
-                .toolSource()
-                .toolType()
-                .toolName();
+            .toolSource()
+            .toolType()
+            .toolName();
         boolean isScopeMatch = !httpUtils.verifyHttpRequestResponse(
-                request,
-                toolType
+            request,
+            toolType
         );
         isScope.set(isScopeMatch);
 
@@ -78,51 +77,51 @@ public class HttpMessageActiveHandler implements HttpHandler {
                     if (!c_scope.startsWith("request")) {
                         // 添加响应规则
                         rules.add(
-                                new ResponseRule(
-                                        c_scope,
-                                        relationship,
-                                        condition,
-                                        c_regex,
-                                        e_scope,
-                                        f_regex,
-                                        s_regex,
-                                        m_scope,
-                                        match,
-                                        replace,
-                                        m_regex
-                                )
+                            new ResponseRule(
+                                c_scope,
+                                relationship,
+                                condition,
+                                c_regex,
+                                e_scope,
+                                f_regex,
+                                s_regex,
+                                m_scope,
+                                match,
+                                replace,
+                                m_regex
+                            )
                         );
                         continue;
                     }
 
                     // 获取请求的各个部分
                     String fullRequest = modifier.handleStringEncoding(
-                            request.toByteArray().getBytes()
+                        request.toByteArray().getBytes()
                     );
                     String method = request.method();
                     String uri = request.path();
                     String header = request
-                            .headers()
-                            .stream()
-                            .map(HttpHeader::toString)
-                            .collect(Collectors.joining("\r\n"));
+                        .headers()
+                        .stream()
+                        .map(HttpHeader::toString)
+                        .collect(Collectors.joining("\r\n"));
                     String body = modifier.handleStringEncoding(
-                            request.body().getBytes()
+                        request.body().getBytes()
                     );
 
                     // 检查条件是否满足
                     boolean conditionMet = modifier.checkCondition(
-                            modifier.getTargetContent(
-                                    c_scope,
-                                    fullRequest,
-                                    method,
-                                    uri,
-                                    header,
-                                    body
-                            ),
-                            condition,
-                            relationship,
-                            c_regex
+                        modifier.getTargetContent(
+                            c_scope,
+                            fullRequest,
+                            method,
+                            uri,
+                            header,
+                            body
+                        ),
+                        condition,
+                        relationship,
+                        c_regex
                     );
 
                     if (conditionMet) {
@@ -134,41 +133,47 @@ public class HttpMessageActiveHandler implements HttpHandler {
 
                         if (!f_regex.isEmpty()) {
                             String extractScope = e_scope.isEmpty()
-                                    ? m_scope
-                                    : e_scope;
+                                ? m_scope
+                                : e_scope;
                             if (extractScope.startsWith("request")) {
                                 // Extract 目标在 request，立即 resolve
                                 String regexTarget = modifier.getTargetContent(
-                                        extractScope,
-                                        fullRequest,
-                                        method,
-                                        uri,
-                                        header,
-                                        body
+                                    extractScope,
+                                    fullRequest,
+                                    method,
+                                    uri,
+                                    header,
+                                    body
                                 );
                                 resolvedMatch =
-                                        modifier.resolveRegexIdentifiers(
-                                                regexTarget,
-                                                f_regex,
-                                                s_regex,
-                                                match
-                                        );
+                                    modifier.resolveRegexIdentifiers(
+                                        regexTarget,
+                                        f_regex,
+                                        s_regex,
+                                        match
+                                    );
                                 resolvedReplace =
-                                        modifier.resolveRegexIdentifiers(
-                                                regexTarget,
-                                                f_regex,
-                                                s_regex,
-                                                replace
-                                        );
+                                    modifier.resolveRegexIdentifiers(
+                                        regexTarget,
+                                        f_regex,
+                                        s_regex,
+                                        replace
+                                    );
                                 // 如果没有提取到东西，跳过 match and replace
                                 if (
-                                        resolvedMatch == null ||
-                                                resolvedReplace == null
+                                    resolvedMatch == null ||
+                                    resolvedReplace == null
                                 ) {
                                     continue;
                                 }
                             } else {
-                                // Extract 目标在 response，延迟到响应阶段
+                                // Extract 目标在 response，延迟到响应阶段。
+                                // 但如果 Match/Replace 目标在 request，则该规则
+                                // 不可能在请求阶段完成（响应尚不存在），跳过以
+                                // 避免用未解析的占位符（如 {1}）破坏请求。
+                                if (m_scope.startsWith("request")) {
+                                    continue;
+                                }
                                 pendingEScope = e_scope;
                                 pendingFRegex = f_regex;
                                 pendingSRegex = s_regex;
@@ -177,23 +182,23 @@ public class HttpMessageActiveHandler implements HttpHandler {
 
                         if (m_scope.startsWith("request")) {
                             request = modifier.modifyRequest(
-                                    request,
-                                    m_scope,
-                                    resolvedMatch,
-                                    resolvedReplace,
-                                    m_regex
+                                request,
+                                m_scope,
+                                resolvedMatch,
+                                resolvedReplace,
+                                m_regex
                             );
                         } else if (m_scope.startsWith("response")) {
                             modifications.add(
-                                    new Modification(
-                                            m_scope,
-                                            resolvedMatch,
-                                            resolvedReplace,
-                                            m_regex,
-                                            pendingEScope,
-                                            pendingFRegex,
-                                            pendingSRegex
-                                    )
+                                new Modification(
+                                    m_scope,
+                                    resolvedMatch,
+                                    resolvedReplace,
+                                    m_regex,
+                                    pendingEScope,
+                                    pendingFRegex,
+                                    pendingSRegex
+                                )
                             );
                         }
                     }
@@ -201,13 +206,13 @@ public class HttpMessageActiveHandler implements HttpHandler {
             }
 
             if (
-                    !Arrays.equals(
-                            request.toByteArray().getBytes(),
-                            httpRequestToBeSent.toByteArray().getBytes()
-                    )
+                !Arrays.equals(
+                    request.toByteArray().getBytes(),
+                    httpRequestToBeSent.toByteArray().getBytes()
+                )
             ) {
                 String requestKey = CachePool.generateRequestKey(
-                        httpRequestToBeSent
+                    httpRequestToBeSent
                 );
                 CachePool.cacheModifiedRequest(requestKey, request);
             }
@@ -222,7 +227,7 @@ public class HttpMessageActiveHandler implements HttpHandler {
 
     @Override
     public ResponseReceivedAction handleHttpResponseReceived(
-            HttpResponseReceived httpResponseReceived
+        HttpResponseReceived httpResponseReceived
     ) {
         try {
             HttpResponse response = httpResponseReceived;
@@ -239,40 +244,40 @@ public class HttpMessageActiveHandler implements HttpHandler {
                     if (!modification.f_regex.isEmpty()) {
                         // 延迟到响应阶段的 extract
                         String fullResponse = modifier.handleStringEncoding(
-                                response.toByteArray().getBytes()
+                            response.toByteArray().getBytes()
                         );
                         String status = String.valueOf(response.statusCode());
                         String respHeader = response
-                                .headers()
-                                .stream()
-                                .map(HttpHeader::toString)
-                                .collect(Collectors.joining("\r\n"));
+                            .headers()
+                            .stream()
+                            .map(HttpHeader::toString)
+                            .collect(Collectors.joining("\r\n"));
                         String respBody = modifier.handleStringEncoding(
-                                response.body().getBytes()
+                            response.body().getBytes()
                         );
 
                         String extractScope = modification.e_scope.isEmpty()
-                                ? modification.modifyScope
-                                : modification.e_scope;
+                            ? modification.modifyScope
+                            : modification.e_scope;
                         String regexTarget = modifier.getTargetContent(
-                                extractScope,
-                                fullResponse,
-                                status,
-                                "",
-                                respHeader,
-                                respBody
+                            extractScope,
+                            fullResponse,
+                            status,
+                            "",
+                            respHeader,
+                            respBody
                         );
                         resolvedMatch = modifier.resolveRegexIdentifiers(
-                                regexTarget,
-                                modification.f_regex,
-                                modification.s_regex,
-                                modification.match
+                            regexTarget,
+                            modification.f_regex,
+                            modification.s_regex,
+                            modification.match
                         );
                         resolvedReplace = modifier.resolveRegexIdentifiers(
-                                regexTarget,
-                                modification.f_regex,
-                                modification.s_regex,
-                                modification.replace
+                            regexTarget,
+                            modification.f_regex,
+                            modification.s_regex,
+                            modification.replace
                         );
                         // 如果没有提取到东西，跳过 match and replace
                         if (resolvedMatch == null || resolvedReplace == null) {
@@ -281,11 +286,11 @@ public class HttpMessageActiveHandler implements HttpHandler {
                     }
 
                     response = modifier.modifyResponse(
-                            response,
-                            modification.modifyScope,
-                            resolvedMatch,
-                            resolvedReplace,
-                            modification.regex
+                        response,
+                        modification.modifyScope,
+                        resolvedMatch,
+                        resolvedReplace,
+                        modification.regex
                     );
                 }
 
@@ -293,31 +298,31 @@ public class HttpMessageActiveHandler implements HttpHandler {
                 for (ResponseRule rule : rules) {
                     // 获取响应的各个部分
                     String fullResponse = modifier.handleStringEncoding(
-                            response.toByteArray().getBytes()
+                        response.toByteArray().getBytes()
                     );
                     String status = String.valueOf(response.statusCode());
                     String header = response
-                            .headers()
-                            .stream()
-                            .map(HttpHeader::toString)
-                            .collect(Collectors.joining("\r\n"));
+                        .headers()
+                        .stream()
+                        .map(HttpHeader::toString)
+                        .collect(Collectors.joining("\r\n"));
                     String body = modifier.handleStringEncoding(
-                            response.body().getBytes()
+                        response.body().getBytes()
                     );
 
                     // 检查条件是否满足
                     boolean conditionMet = modifier.checkCondition(
-                            modifier.getTargetContent(
-                                    rule.c_scope,
-                                    fullResponse,
-                                    status,
-                                    "",
-                                    header,
-                                    body
-                            ),
-                            rule.condition,
-                            rule.relationship,
-                            rule.c_regex
+                        modifier.getTargetContent(
+                            rule.c_scope,
+                            fullResponse,
+                            status,
+                            "",
+                            header,
+                            body
+                        ),
+                        rule.condition,
+                        rule.relationship,
+                        rule.c_regex
                     );
 
                     if (conditionMet && rule.m_scope.startsWith("response")) {
@@ -326,58 +331,89 @@ public class HttpMessageActiveHandler implements HttpHandler {
 
                         if (!rule.f_regex.isEmpty()) {
                             String extractScope = rule.e_scope.isEmpty()
-                                    ? rule.m_scope
-                                    : rule.e_scope;
-                            String regexTarget = modifier.getTargetContent(
+                                ? rule.m_scope
+                                : rule.e_scope;
+                            String regexTarget;
+                            if (extractScope.startsWith("request")) {
+                                // 提取目标在请求侧，从原始发起请求中获取内容
+                                HttpRequest initiatingRequest =
+                                    httpResponseReceived.initiatingRequest();
+                                if (initiatingRequest == null) {
+                                    continue;
+                                }
+                                String reqFull = modifier.handleStringEncoding(
+                                    initiatingRequest.toByteArray().getBytes()
+                                );
+                                String reqMethod = initiatingRequest.method();
+                                String reqUri = initiatingRequest.path();
+                                String reqHeader = initiatingRequest
+                                    .headers()
+                                    .stream()
+                                    .map(HttpHeader::toString)
+                                    .collect(Collectors.joining("\r\n"));
+                                String reqBody = modifier.handleStringEncoding(
+                                    initiatingRequest.body().getBytes()
+                                );
+                                regexTarget = modifier.getTargetContent(
+                                    extractScope,
+                                    reqFull,
+                                    reqMethod,
+                                    reqUri,
+                                    reqHeader,
+                                    reqBody
+                                );
+                            } else {
+                                regexTarget = modifier.getTargetContent(
                                     extractScope,
                                     fullResponse,
                                     status,
                                     "",
                                     header,
                                     body
-                            );
+                                );
+                            }
                             resolvedMatch = modifier.resolveRegexIdentifiers(
-                                    regexTarget,
-                                    rule.f_regex,
-                                    rule.s_regex,
-                                    rule.match
+                                regexTarget,
+                                rule.f_regex,
+                                rule.s_regex,
+                                rule.match
                             );
                             resolvedReplace = modifier.resolveRegexIdentifiers(
-                                    regexTarget,
-                                    rule.f_regex,
-                                    rule.s_regex,
-                                    rule.replace
+                                regexTarget,
+                                rule.f_regex,
+                                rule.s_regex,
+                                rule.replace
                             );
                             // 如果没有提取到东西，跳过 match and replace
                             if (
-                                    resolvedMatch == null || resolvedReplace == null
+                                resolvedMatch == null || resolvedReplace == null
                             ) {
                                 continue;
                             }
                         }
 
                         response = modifier.modifyResponse(
-                                response,
-                                rule.m_scope,
-                                resolvedMatch,
-                                resolvedReplace,
-                                rule.m_regex
+                            response,
+                            rule.m_scope,
+                            resolvedMatch,
+                            resolvedReplace,
+                            rule.m_regex
                         );
                     }
                 }
 
                 if (
-                        !Arrays.equals(
-                                response.toByteArray().getBytes(),
-                                httpResponseReceived.toByteArray().getBytes()
-                        )
+                    !Arrays.equals(
+                        response.toByteArray().getBytes(),
+                        httpResponseReceived.toByteArray().getBytes()
+                    )
                 ) {
                     String responseKey = CachePool.generateResponseKey(
-                            response
+                        response
                     );
                     CachePool.cacheOriginalResponse(
-                            responseKey,
-                            httpResponseReceived
+                        responseKey,
+                        httpResponseReceived
                     );
                 }
             }
@@ -392,28 +428,26 @@ public class HttpMessageActiveHandler implements HttpHandler {
     }
 
     private record Modification(
-            String modifyScope,
-            String match,
-            String replace,
-            boolean regex,
-            String e_scope,
-            String f_regex,
-            String s_regex
-    ) {
-    }
+        String modifyScope,
+        String match,
+        String replace,
+        boolean regex,
+        String e_scope,
+        String f_regex,
+        String s_regex
+    ) {}
 
     private record ResponseRule(
-            String c_scope,
-            String relationship,
-            String condition,
-            boolean c_regex,
-            String e_scope,
-            String f_regex,
-            String s_regex,
-            String m_scope,
-            String match,
-            String replace,
-            boolean m_regex
-    ) {
-    }
+        String c_scope,
+        String relationship,
+        String condition,
+        boolean c_regex,
+        String e_scope,
+        String f_regex,
+        String s_regex,
+        String m_scope,
+        String match,
+        String replace,
+        boolean m_regex
+    ) {}
 }

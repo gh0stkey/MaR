@@ -17,7 +17,7 @@ public class MaR implements BurpExtension {
     public void initialize(MontoyaApi api) {
         // 设置扩展名称
         api.extension().setName("MaR - Matcher and Replacement");
-        String version = "2.0.2";
+        String version = "2.1";
 
         // 加载扩展后输出的项目信息
         Logging logging = api.logging();
